@@ -3,7 +3,7 @@
 /**
  * Twitter Feed Parser
  * 
- * @version  1.0
+ * @version  	1.0
  * @author	Dario Zadro
  * @link	http://zadroweb.com/your-twitter-feed-is-broken/
  * 
@@ -12,8 +12,7 @@
  * See: https://dev.twitter.com/docs/rate-limiting/1.1
  * Super simple debug mode will output returned API variable
  * --
- * Twitter time can be displayed (ex. "about 1 hour ago") by setting the 
- * $twitter_time param to true.
+ * Twitter time is displayed (ex. "about 1 hour ago")
  * 
  * Credits:
  * Twitter API: https://github.com/J7mbo/twitter-api-php
@@ -26,7 +25,7 @@ require_once('TwitterAPIExchange.php');
 // Your Twitter App Settings
 // https://dev.twitter.com/apps
 $access_token			= 'Add_Your_Access_Token';
-$access_token_secret	= 'Add_Your_Access_Token_Secret';
+$access_token_secret		= 'Add_Your_Access_Token_Secret';
 $consumer_key			= 'Add_Your_Consumer_Key';
 $consumer_secret		= 'Add_Your_Consumer_Secret';
 
@@ -35,13 +34,13 @@ $twitter_username 		= 'zadroweb';
 $number_tweets			= 5; // How many tweets to display? max 20
 $ignore_replies 		= true; // Should we ignore replies?
 $twitter_caching		= true; // You can change to false for some reason
-$twitter_cache_time 	= 60*60; // 1 Hour
-$twitter_cache_file 	= 'tweets.txt'; // Check your permissions
+$twitter_cache_time 		= 60*60; // 1 Hour
+$twitter_cache_file 		= 'tweets.txt'; // Check your permissions
 $twitter_debug			= false; // Set to "true" to see all returned values
 
 // Settings for TwitterAPIExchange.php
-$url					= 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-$getfield 				= '?screen_name='.$twitter_username;
+$url				= 'https://api.twitter.com/1.1/statuses/user_timeline.json';
+$getfield 			= '?screen_name='.$twitter_username;
 $requestMethod 			= 'GET';
 
 // Simple function to get Twitter style "time ago"
@@ -49,21 +48,21 @@ function ago($tweet_time,$twitter_id){
 	
 	global $twitter_username;
 	
-    $m = time()-strtotime($tweet_time); $o='just now';
-    $t = array('year'=>31556926,'month'=>2629744,'week'=>604800,'day'=>86400,'hour'=>3600,'minute'=>60,'second'=>1);
-    foreach($t as $u=>$s){
-        if($s<=$m){$v=floor($m/$s); $o='about '.$v.' '.$u.($v==1?'':'s').' ago'; break;}
-    }
-    return '<a href="http://twitter.com/'.$twitter_username.'/statuses/'.$twitter_id.'">'.$o.'</a>';
+    	$m = time()-strtotime($tweet_time); $o='just now';
+    	$t = array('year'=>31556926,'month'=>2629744,'week'=>604800,'day'=>86400,'hour'=>3600,'minute'=>60,'second'=>1);
+    	foreach($t as $u=>$s){
+        	if($s<=$m){$v=floor($m/$s); $o='about '.$v.' '.$u.($v==1?'':'s').' ago'; break;}
+    	}
+    	return '<a href="http://twitter.com/'.$twitter_username.'/statuses/'.$twitter_id.'">'.$o.'</a>';
 	
 }
 
 // Let's run the API then JSON decode and store in variable
 $settings = array(
-    'oauth_access_token' 		=> $access_token,
-    'oauth_access_token_secret' => $access_token_secret,
-    'consumer_key' 				=> $consumer_key,
-    'consumer_secret'			=> $consumer_secret
+	'oauth_access_token' => $access_token,
+    	'oauth_access_token_secret' => $access_token_secret,
+    	'consumer_key' => $consumer_key,
+    	'consumer_secret' => $consumer_secret
 );
 $twitter = new TwitterAPIExchange($settings);
 $twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
