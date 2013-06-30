@@ -57,16 +57,6 @@ function ago($tweet_time,$twitter_id){
 	
 }
 
-// Let's run the API then JSON decode and store in variable
-$settings = array(
-	'oauth_access_token' => $access_token,
-    	'oauth_access_token_secret' => $access_token_secret,
-    	'consumer_key' => $consumer_key,
-    	'consumer_secret' => $consumer_secret
-);
-$twitter = new TwitterAPIExchange($settings);
-$twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
-
 // Flag for twitter error
 $tweet_flag = 0;
 
@@ -85,6 +75,16 @@ if(!$twitter_debug) {
 		@readfile($twitter_cache_file);	
 	
 	} else {
+		
+		// Let's run the API then JSON decode and store in variable
+		$settings = array(
+			'oauth_access_token' => $access_token,
+    			'oauth_access_token_secret' => $access_token_secret,
+    			'consumer_key' => $consumer_key,
+    			'consumer_secret' => $consumer_secret
+		);
+		$twitter = new TwitterAPIExchange($settings);
+		$twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
 		
 		// Check if at least 1 tweet returned from API
 		if(isset($twitter_stream[0]->text)) {
