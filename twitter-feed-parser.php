@@ -8,7 +8,7 @@
  * @link	http://zadroweb.com/your-twitter-feed-is-broken/
  * 
  * Notes:
- * Caching is used because Twitter only allow 180 queries for every 15 minutes
+ * Caching is used - Twitter only allows 180 queries for every 15 minutes
  * See: https://dev.twitter.com/docs/rate-limiting/1.1
  * Super simple debug mode will output returned API variable
  * --
@@ -36,11 +36,6 @@ $twitter_cache_time 		= 60*60; // 1 Hour
 $twitter_cache_file 		= 'tweets.txt'; // Check your permissions
 $twitter_debug			= false; // Set to "true" to see all returned values
 
-// Settings for TwitterAPIExchange.php
-$url				= 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-$getfield 			= '?screen_name='.$twitter_username;
-$requestMethod 			= 'GET';
-
 // Simple function to get Twitter style "time ago"
 function ago($tweet_time,$twitter_id){
 	
@@ -51,7 +46,7 @@ function ago($tweet_time,$twitter_id){
     	foreach($t as $u=>$s){
         	if($s<=$m){$v=floor($m/$s); $o='about '.$v.' '.$u.($v==1?'':'s').' ago'; break;}
     	}
-    	return '<a href="http://twitter.com/'.$twitter_username.'/statuses/'.$twitter_id.'">'.$o.'</a>';
+    	return '<a href="http://twitter.com/'.$twitter_username.'/statuses/'.$twitter_id.'">('.$o.')</a>';
 	
 }
 
@@ -60,13 +55,13 @@ $tweet_flag = 0;
 
 if(!$twitter_debug) {
 	
-	// Time that the cache was last filled.
+	// Time the cache was last created
 	$cache_created_on = ((@file_exists($twitter_cache_file))) ? @filemtime($twitter_cache_file) : 0;
 	
-	// Output the cache file is valid time
+	// Output the cache file if valid time
 	if ( (time() - $twitter_cache_time < $cache_created_on) && $twitter_caching) {
 		
-		// Tweets present, all good
+		// Tweets should be in cache file, all good
 		$tweet_flag = 1;
 		
 		// Get tweets from cache
@@ -75,6 +70,11 @@ if(!$twitter_debug) {
 	} else {
 		
 		require_once('TwitterAPIExchange.php');
+		
+		// Settings for TwitterAPIExchange.php
+		$url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
+		$getfield = '?screen_name='.$twitter_username;
+		$requestMethod = 'GET';
 		
 		// Let's run the API then JSON decode and store in variable
 		$settings = array(
@@ -101,7 +101,7 @@ if(!$twitter_debug) {
 				
 				if ($tweet_start_char != '@' || $ignore_replies == false) {
 				
-					// Let's create links from hashtags, mentions, other links
+					// Let's create links from hashtags, mentions, urls
 					$tweet_text = preg_replace('/(https?:\/\/[^\s"<>]+)/','<a href="$1">$1</a>', $tweet_text);
 					$tweet_text = preg_replace('/(^|[\n\s])@([^\s"\t\n\r<:]*)/is', '$1<a href="http://twitter.com/$2">@$2</a>', $tweet_text);
 					$tweet_text = preg_replace('/(^|[\n\s])#([^\s"\t\n\r<:]*)/is', '$1<a href="http://twitter.com/search?q=%23$2">#$2</a>', $tweet_text);
@@ -109,7 +109,7 @@ if(!$twitter_debug) {
 					// Building tweets display element
 					$tweets .= '<li>'.$tweet_text.' <span class="twitter_date">'.ago($tweet->created_at,$tweet->id).'</span></li>'."\n";
 					
-					// Count them tweets and quit if necessary
+					// Count tweets and quit if necessary
 					$tweet_count++; if ($tweet_count >= $number_tweets) break;
 					
 				}
