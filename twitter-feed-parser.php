@@ -118,8 +118,8 @@ if(!$twitter_debug) {
 			
 			echo $tweets.'</ul>'; // End display element
 			
-			// Write new cache file
-			$file = @fopen($twitter_cache_file, 'w');
+			// Write new cache file in the same directory
+			$file = @fopen(dirname(__FILE__).'/'.$twitter_cache_file, 'w');
 		
 			// Save contents and flush buffer
 			@fwrite($file, ob_get_contents()); 
