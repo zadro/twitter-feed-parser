@@ -19,8 +19,6 @@
  * Hashtag/Username Parsing: http://snipplr.com/view/16221/get-twitter-tweets/
  * Time Ago (modified) Function: http://css-tricks.com/snippets/php/time-ago-function/
  */
-
-require_once('TwitterAPIExchange.php');
  
 // Your Twitter App Settings
 // https://dev.twitter.com/apps
@@ -75,6 +73,8 @@ if(!$twitter_debug) {
 		@readfile($twitter_cache_file);	
 	
 	} else {
+		
+		require_once('TwitterAPIExchange.php');
 		
 		// Let's run the API then JSON decode and store in variable
 		$settings = array(
