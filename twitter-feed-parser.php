@@ -3,7 +3,7 @@
 /**
  * Twitter Feed Parser
  * 
- * @version  	1.0
+ * @version  	1.1.2
  * @author	Dario Zadro
  * @link	http://zadroweb.com/your-twitter-feed-is-broken/
  * 
@@ -36,24 +36,23 @@ $twitter_cache_time 		= 60*60; // 1 Hour
 $twitter_cache_file 		= 'tweets.txt'; // Check your permissions
 $twitter_debug			= false; // Set to "true" to see all returned values
 
-// Simple function to get Twitter style "time ago"
-function ago($tweet_time,$twitter_id){
-	
-	global $twitter_username;
-	
-    	$m = time()-strtotime($tweet_time); $o='just now';
-    	$t = array('year'=>31556926,'month'=>2629744,'week'=>604800,'day'=>86400,'hour'=>3600,'minute'=>60,'second'=>1);
-    	foreach($t as $u=>$s){
-        	if($s<=$m){$v=floor($m/$s); $o='about '.$v.' '.$u.($v==1?'':'s').' ago'; break;}
-    	}
-    	return '<a href="http://twitter.com/'.$twitter_username.'/statuses/'.$twitter_id.'">('.$o.')</a>';
-	
-}
+require_once('TwitterAPIExchange.php');
+		
+// Settings for TwitterAPIExchange.php
+$url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
+$getfield = '?screen_name='.$twitter_username;
+$requestMethod = 'GET';
+$settings = array(
+	'oauth_access_token' => $access_token,
+	'oauth_access_token_secret' => $access_token_secret,
+	'consumer_key' => $consumer_key,
+	'consumer_secret' => $consumer_secret
+);
 
 // Flag for twitter error
 $tweet_flag = 0;
 
-if(!$twitter_debug) {
+if (!$twitter_debug) {
 	
 	// Time the cache was last created
 	$cache_created_on = ((@file_exists($twitter_cache_file))) ? @filemtime($twitter_cache_file) : 0;
@@ -69,32 +68,19 @@ if(!$twitter_debug) {
 	
 	} else {
 		
-		require_once('TwitterAPIExchange.php');
-		
-		// Settings for TwitterAPIExchange.php
-		$url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-		$getfield = '?screen_name='.$twitter_username;
-		$requestMethod = 'GET';
-		
 		// Let's run the API then JSON decode and store in variable
-		$settings = array(
-			'oauth_access_token' => $access_token,
-    			'oauth_access_token_secret' => $access_token_secret,
-    			'consumer_key' => $consumer_key,
-    			'consumer_secret' => $consumer_secret
-		);
 		$twitter = new TwitterAPIExchange($settings);
 		$twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
 		
 		// Check if at least 1 tweet returned from API
-		if(isset($twitter_stream[0]->text)) {
+		if (isset($twitter_stream[0]->text)) {
 	
 			ob_start(); // Start buffer
 			
 			$tweets = '<ul class="twitter_stream">'; // Start display element
 			$tweet_count = 0; // Initialize tweet start count
 				
-			foreach($twitter_stream as $tweet){
+			foreach ($twitter_stream as $tweet){
 				
 				$tweet_text = htmlspecialchars($tweet->text);
 				$tweet_start_char = substr($tweet_text, 0, 1);
@@ -107,7 +93,7 @@ if(!$twitter_debug) {
 					$tweet_text = preg_replace('/(^|[\n\s])#([^\s"\t\n\r<:]*)/is', '$1<a href="http://twitter.com/search?q=%23$2">#$2</a>', $tweet_text);
 					
 					// Building tweets display element
-					$tweets .= '<li>'.$tweet_text.' <span class="twitter_date">'.ago($tweet->created_at,$tweet->id).'</span></li>'."\n";
+					$tweets .= '<li>'.$tweet_text.' <span class="twitter_date">'.ago($tweet->created_at,$tweet->id,$tweet->user->screen_name).'</span></li>'."\n";
 					
 					// Count tweets and quit if necessary
 					$tweet_count++; if ($tweet_count >= $number_tweets) break;
@@ -134,6 +120,10 @@ if(!$twitter_debug) {
 	}
 
 } else {
+	
+	// Let's run the API then JSON decode and store in variable
+	$twitter = new TwitterAPIExchange($settings);
+	$twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
 
 	// Debug mode, just output twitter stream variable
 	echo '<pre>';
@@ -143,7 +133,18 @@ if(!$twitter_debug) {
 }
 
 // If API didn't work for some reason, output some text
-if (!$tweet_flag){
+if (!$tweet_flag) {
 	echo $tweets = '<ul class="twitter_stream twitter_error"><li>Oops, something went wrong with our twitter feed - <a href="http://twitter.com/$twitter_username/">Follow us on Twitter!</a></li></ul>';
 }
-			 		 
+
+// Simple function to get Twitter style "time ago"
+function ago($tweet_time,$tweet_id,$tweet_name) {
+		
+    	$m = time()-strtotime($tweet_time); $o='just now';
+    	$t = array('year'=>31556926,'month'=>2629744,'week'=>604800,'day'=>86400,'hour'=>3600,'minute'=>60,'second'=>1);
+    	foreach($t as $u=>$s){
+        	if($s<=$m){$v=floor($m/$s); $o='about '.$v.' '.$u.($v==1?'':'s').' ago'; break;}
+    	}
+	return '<a href="http://twitter.com/'.$tweet_name.'/statuses/'.$tweet_id.'">('.$o.')</a>';
+	
+}
