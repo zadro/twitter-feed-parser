@@ -134,7 +134,7 @@ if (!$twitter_debug) {
 
 // If API didn't work for some reason, output some text
 if (!$tweet_flag) {
-	echo $tweets = '<ul class="twitter_stream twitter_error"><li>Oops, something went wrong with our twitter feed - <a href="http://twitter.com/$twitter_username/">Follow us on Twitter!</a></li></ul>';
+	echo $tweets = '<ul class="twitter_stream twitter_error"><li>Oops, something went wrong with our twitter feed - <a href="http://twitter.com/'.$twitter_username.'/">Follow us on Twitter!</a></li></ul>';
 }
 
 // Simple function to get Twitter style "time ago"
