@@ -73,7 +73,7 @@ if (!$twitter_debug) {
 		$twitter_stream = json_decode($twitter->setGetfield($getfield)->buildOauth($url, $requestMethod)->performRequest());
 		
 		// Check if at least 1 tweet returned from API
-		if (isset($twitter_stream[0]->text)) {
+		if (is_array($twitter_stream) && isset($twitter_stream[0]->text)) {
 	
 			ob_start(); // Start buffer
 			
